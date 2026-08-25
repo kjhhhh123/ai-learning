@@ -1,78 +1,109 @@
+import json
 from pathlib import Path
 
 
-# 负责把 Prompt 数据保存到文本文件，并从文本文件恢复数据。
+# 验证从 JSON 中读取的数据是否符合 Prompt Manager 的结构。
+def _validate_prompts(data: object) -> list:
+    # 顶层数据必须是 List。
+    if not isinstance(data, list):
+        raise ValueError(
+            "prompt data must be a list"
+        )
+
+    for prompt in data:
+        # List 中的每个元素都必须是 Dict。
+        if not isinstance(prompt, dict):
+            raise ValueError(
+                "each prompt must be a dict"
+            )
+
+        # 验证核心字段是否存在。
+        if "id" not in prompt:
+            raise ValueError(
+                "prompt is missing id"
+            )
+
+        if "title" not in prompt:
+            raise ValueError(
+                "prompt is missing title"
+            )
+
+        if "content" not in prompt:
+            raise ValueError(
+                "prompt is missing content"
+            )
+
+        # 验证核心字段的类型。
+        if not isinstance(prompt["id"], int):
+            raise ValueError(
+                "prompt id must be an integer"
+            )
+
+        if not isinstance(prompt["title"], str):
+            raise ValueError(
+                "prompt title must be a string"
+            )
+
+        if not isinstance(prompt["content"], str):
+            raise ValueError(
+                "prompt content must be a string"
+            )
+
+    return data
+
+
+# 把完整 Prompt List 序列化并保存为 JSON。
 def save_prompts(
     file_path: Path,
     prompts: list
 ) -> None:
-    # 使用 w 模式保存当前完整数据，旧文件内容会被覆盖。
+    # 保存前先验证，避免主动写入错误结构。
+    _validate_prompts(prompts)
+
     with open(
         file_path,
         "w",
         encoding="utf-8"
     ) as file:
-        for prompt in prompts:
-            # 每个 Prompt 保存为一行，字段之间使用制表符分隔。
-            line = (
-                f'{prompt["id"]}\t'
-                f'{prompt["title"]}\t'
-                f'{prompt["content"]}\n'
-            )
+        json.dump(
+            prompts,
+            file,
+            ensure_ascii=False,
+            indent=2
+        )
 
-            file.write(line)
+        # 让文本文件以换行结束，方便终端和编辑器显示。
+        file.write("\n")
 
 
+# 从 JSON 文件读取并恢复 Prompt List。
 def load_prompts(file_path: Path) -> list:
-    # 逐行读取文件，并把每一行恢复成一个 Prompt 字典。
-    prompts = []
-
     try:
         with open(
             file_path,
             "r",
             encoding="utf-8"
         ) as file:
-            for line in file:
-                # 去掉行末换行符，空行不作为 Prompt 处理。
-                cleaned_line = line.rstrip("\n")
-
-                if cleaned_line == "":
-                    continue
-
-                # 最多切分两次，期望得到 id、title、content 三部分。
-                parts = cleaned_line.split("\t", 2)
-
-                if len(parts) != 3:
-                    raise ValueError(
-                        "invalid prompt data"
-                    )
-
-                # 文本文件读取到的 ID 是字符串，需要恢复成整数。
-                prompt_id = int(parts[0])
-                title = parts[1]
-                content = parts[2]
-
-                prompt = {
-                    "id": prompt_id,
-                    "title": title,
-                    "content": content
-                }
-
-                prompts.append(prompt)
+            data = json.load(file)
     except FileNotFoundError:
-        # 第一次运行时数据文件可能还不存在，此时从空列表开始。
+        # 第一次启动没有数据文件时，从空列表开始。
         return []
+    except json.JSONDecodeError as error:
+        # 把底层 JSON 错误转换成项目更容易理解的错误。
+        raise ValueError(
+            "invalid JSON at "
+            f"line {error.lineno}, "
+            f"column {error.colno}"
+        ) from error
 
-    return prompts
+    return _validate_prompts(data)
 
 
-# 直接运行 storage.py 时执行最小的保存、加载自测；
-# 被 main.py 导入时不会执行。
+# 直接运行 storage.py 时执行保存、加载闭环测试。
 if __name__ == "__main__":
     test_path = (
-        Path(__file__).parent
-        / "test_prompts.txt"
+        Path(__file__).resolve().parent
+        / "test_prompts.json"
     )
 
     test_prompts = [

@@ -8,7 +8,7 @@ import storage
 # 避免受到终端当前工作目录的影响。
 DATA_FILE = (
     Path(__file__).resolve().parent
-    / "prompts.txt"
+    / "prompts.json"
 )
 
 
@@ -18,11 +18,10 @@ def main():
         prompts = storage.load_prompts(
             DATA_FILE
         )
-    except ValueError as error:
-        # 文件存在但内容格式错误时，显示具体原因。
-        # 当前教学版本暂时使用空列表继续运行。
+    except (OSError, ValueError) as error:
+        # 加载失败后停止程序，避免覆盖可能仍可恢复的数据。
         print("Cannot load data:", error)
-        prompts = []
+        return
 
     # 显示程序启动时已经存在的数据。
     print("Current prompts:")
