@@ -1,6 +1,6 @@
 # AI Engineering Learning Progress
 
-更新时间：2026-08-26
+更新时间：2026-09-05
 
 ## 总体目标
 
@@ -36,7 +36,7 @@ PyTorch / Transformer / 微调理论
 |---|---|---|
 | Day 01：Git / GitHub | ✅ 已完成 | 掌握本地版本管理、远程协作、分支与冲突处理 |
 | Day 02：Python 工程基础 | ✅ 已完成 | 完成可持久化的命令行 Prompt Manager |
-| Day 03：HTTP / API | ⏭️ 下一步 | 理解 HTTP 并完成第一个 API Client |
+| Day 03：HTTP / API | 🚧 进行中 | 已完成 HTTP 基础、GET/POST 与异常处理，正在完成 Post API Client |
 
 ## Day 01：Git / GitHub
 
@@ -102,7 +102,7 @@ day02-python-foundation/
 
 ## Day 03：HTTP / API
 
-状态：⏭️ 下一步
+状态：🚧 进行中（模块 1～5 已完成，模块 6 学习中）
 
 ### 学习目标
 
@@ -177,6 +177,12 @@ day03-http-api/
 - `main.py`：菜单、输入、输出和程序流程。
 - `api_client.py`：构造请求、设置超时、检查响应并返回数据。
 
+当前实现进度：
+
+- `api_client.py` 已实现按文章 ID 查询、按用户查询和模拟创建文章。
+- `main.py` 已写出菜单、输入校验、结果展示和异常处理结构。
+- 模块 6 尚未标记完成；等待学习、运行和理解确认。
+
 ### 故障实验
 
 - 请求不存在的资源，观察 404。
@@ -204,4 +210,6 @@ day03-http-api/
 
 ## 当前下一步
 
-创建 `day03-http-api`，从“客户端—服务端—请求—响应”的最小实验开始。
+完成模块 6：运行并验证 Post API Client 的三项功能、无效输入和异常提示；用户确认学完后，再完成 Day 03 收尾。
+
+Day 03 详细笔记：`notes/day03-http-api.md`
